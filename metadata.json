@@ -1,0 +1,5 @@
+{
+  "name": "QR Code Business Card",
+  "description": "A digital business card with a QR code that generates a vCard to easily save contact details.",
+  "requestFramePermissions": []
+}
