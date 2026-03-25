@@ -20,9 +20,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-
-import logo from "../src/assets/logo-immg.png";
-import profileImg from "../src/assets/work-img.jpg";
+import logo from "./assets/logo-immg.png";
+import profileImg from "./assets/work-img.jpg";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -105,7 +104,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-white/20">
-      <div className="max-w-6xl mx-auto px-4 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <div id="main-app-ui" className="max-w-6xl mx-auto px-4 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
         
         {/* Left Column: Card Preview */}
         <div className="flex flex-col items-center space-y-12 sticky top-12">
@@ -235,36 +234,64 @@ export default function App() {
         </div>
       </div>
 
+      {/* Dedicated Print Section - Hidden by default, visible only during print */}
+      <div id="print-section" className="hidden print:flex flex-col items-center gap-12 p-10 bg-white min-h-screen w-full">
+        <div className="print-card-container">
+          <CardFront companyName={details.companyName} />
+        </div>
+        <div className="print-card-container">
+          <CardBack details={details} vCardString={vCardString} />
+        </div>
+      </div>
+
       {/* Print Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          body { background: white !important; color: black !important; }
-          .min-h-screen { min-height: auto !important; padding: 0 !important; }
-          .max-w-6xl { max-width: none !important; margin: 0 !important; padding: 0 !important; }
-          .lg\\:grid-cols-2 { display: block !important; }
-          .sticky { position: static !important; }
-          .bg-\\[\\#0a0a0a\\] { background: white !important; }
-          .bg-\\[\\#121212\\] { background: black !important; -webkit-print-color-adjust: exact; }
-          .text-white { color: white !important; -webkit-print-color-adjust: exact; }
-          button, .bg-\\[\\#121212\\].border, .text-white\\/40, .border-white\\/5, .shadow-2xl, .InputGroup, .CardEditor, .DigitalCard-header { display: none !important; }
+          /* Hide the main application UI */
+          #main-app-ui { display: none !important; }
           
-          .CardPreview-container { 
+          /* Show the print-only section */
+          #print-section { 
             display: flex !important; 
-            flex-direction: column !important; 
-            gap: 40px !important;
+            flex-direction: column !important;
             align-items: center !important;
+            gap: 40px !important;
             padding: 40px !important;
+            background: white !important;
+            min-height: 100vh !important;
+            width: 100% !important;
+          }
+          
+          .print-card-container {
+            width: 85.6mm !important;
+            height: 53.98mm !important;
+            page-break-inside: avoid !important;
+            margin-bottom: 20px !important;
           }
           
           .print-card {
-            width: 85.6mm !important;
-            height: 53.98mm !important;
-            background: black !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: #121212 !important;
             color: white !important;
             border-radius: 4mm !important;
             overflow: hidden !important;
-            page-break-inside: avoid !important;
-            margin-bottom: 20px !important;
+            position: relative !important;
+            box-shadow: none !important;
+            border: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          /* Ensure images and QR codes show up */
+          img, svg { display: block !important; }
+          
+          /* Force backgrounds to print */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          
+          @page {
+            size: auto;
+            margin: 0;
           }
         }
       `}} />
@@ -301,9 +328,9 @@ function CardFront({ companyName }: { companyName: string }) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.1)_0%,_transparent_70%)]" />
       </div>
       
-      <div className="relative flex flex-col items-center space-y-6 w-full">
+      <div className="relative flex flex-col items-center space-y-2 w-full">
         {/* Logo Image */}
-        <div className="relative w-48 h-28 flex items-center justify-center">
+        <div className="relative w-48 h-24 flex items-center justify-center">
           <img 
             src={logo} 
             alt="Logo" 
@@ -312,8 +339,7 @@ function CardFront({ companyName }: { companyName: string }) {
           />
         </div>
 
-        <div className="text-center space-y-3">
-          <div className="h-[1px] w-12 bg-white/20 mx-auto" />
+        <div className="text-center space-y-1">
           <h2 className="text-sm font-bold tracking-[0.4em] uppercase leading-relaxed max-w-[320px] text-white/90">
             {companyName}
           </h2>
@@ -327,34 +353,34 @@ function CardBack({ details, vCardString }: { details: CardDetails, vCardString:
   const profileUrl = `${window.location.origin}${window.location.pathname}?view=profile`;
   
   return (
-    <div className="print-card w-full h-full bg-[#121212] rounded-[2rem] border border-white/10 flex items-center p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05),5px_5px_15px_rgba(0,0,0,0.3)] relative overflow-hidden before:absolute before:inset-0 before:rounded-[2rem] before:border-r-4 before:border-b-4 before:border-white/5 before:pointer-events-none">
-      <div className="grid grid-cols-[1fr_2.2fr] gap-4 items-center w-full">
+    <div className="print-card w-full h-full bg-[#121212] rounded-[2rem] border border-white/10 flex items-center p-3 shadow-none relative overflow-hidden">
+      <div className="flex items-center w-full space-x-4">
         
         {/* QR Code Section */}
-        <div className="flex flex-col items-center space-y-2">
-          <div className="bg-white p-2.5 rounded-xl shadow-lg">
+        <div className="flex flex-col items-center space-y-1 flex-shrink-0 ml-2">
+          <div className="bg-white p-1.5 rounded-lg shadow-lg">
             <QRCodeSVG 
               value={profileUrl} 
-              size={100}
+              size={70}
               level="H"
               includeMargin={false}
             />
           </div>
-          <span className="text-[7px] uppercase tracking-[0.3em] text-white/30">Scan for Bio</span>
+          <span className="text-[5px] uppercase tracking-[0.2em] text-white/30">Scan for Bio</span>
         </div>
 
         {/* Details Section */}
-        <div className="space-y-4">
-          <div className="space-y-0.5">
-            <h3 className="text-base font-bold tracking-widest uppercase truncate">{details.fullName}</h3>
-            <p className="text-[9px] text-white/40 uppercase tracking-[0.15em]">{details.companyName}</p>
+        <div className="flex-grow min-w-0 pr-2">
+          <div className="mb-2">
+            <h3 className="text-[12px] font-bold tracking-widest uppercase leading-tight text-white">{details.fullName}</h3>
+            <p className="text-[7px] text-white/40 uppercase tracking-[0.1em]">{details.companyName}</p>
           </div>
 
-          <div className="space-y-2">
-            <DetailItem icon={<Phone className="w-3 h-3" />} text={details.phone} />
-            <DetailItem icon={<Mail className="w-3 h-3" />} text={details.email} />
-            <DetailItem icon={<MapPin className="w-3 h-3" />} text={details.address} />
-            <DetailItem icon={<MapPin className="w-3 h-3" />} text={details.address1} />
+          <div className="space-y-1">
+            <DetailItem icon={<Phone className="w-2.5 h-2.5" />} text={details.phone} />
+            <DetailItem icon={<Mail className="w-2.5 h-2.5" />} text={details.email} />
+            <DetailItem icon={<MapPin className="w-2.5 h-2.5" />} text={details.address} />
+            {details.address1 && <DetailItem icon={<MapPin className="w-2.5 h-2.5" />} text={details.address1} />}
           </div>
         </div>
       </div>
@@ -447,12 +473,13 @@ function ProfileView({ details, onSave }: { details: CardDetails, onSave: () => 
 }
 
 function DetailItem({ icon, text }: { icon: ReactNode, text: string }) {
+  if (!text) return null;
   return (
-    <div className="flex items-start space-x-2 group">
+    <div className="flex items-start space-x-1.5 group">
       <div className="text-white/30 group-hover:text-white transition-colors mt-0.5 flex-shrink-0">
         {icon}
       </div>
-      <span className="text-[9px] font-medium text-white/70 group-hover:text-white transition-colors leading-tight">
+      <span className="text-[8px] font-medium text-white/70 group-hover:text-white transition-colors leading-tight break-words">
         {text}
       </span>
     </div>
