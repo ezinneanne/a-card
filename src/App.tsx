@@ -1,3 +1,8 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { useState, useMemo, useRef, type ReactNode } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { 
@@ -57,13 +62,18 @@ export default function App() {
   });
 
   const [isFront, setIsFront] = useState(true);
+  const [frontDesign, setFrontDesign] = useState<"design1" | "design2">("design1");
   const [isProfileView, setIsProfileView] = useState(false);
+  const [isFront2View, setIsFront2View] = useState(false);
 
-  // Check if we should show the profile view based on URL
+  // Check if we should show specific views based on URL
   useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("view") === "profile") {
       setIsProfileView(true);
+    }
+    if (params.get("view") === "front2") {
+      setIsFront2View(true);
     }
   }, []);
 
@@ -102,6 +112,16 @@ export default function App() {
     return <ProfileView details={details} onSave={handleDownloadVCard} />;
   }
 
+  if (isFront2View) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+        <div className="w-full max-w-md aspect-[1.75/1]">
+          <CardFrontModern />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-white/20">
       <div id="main-app-ui" className="max-w-6xl mx-auto px-4 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
@@ -124,7 +144,11 @@ export default function App() {
                 className="w-full h-full"
               >
                 {isFront ? (
-                  <CardFront companyName={details.companyName} />
+                  frontDesign === "design1" ? (
+                    <CardFront companyName={details.companyName} />
+                  ) : (
+                    <CardFrontModern />
+                  )
                 ) : (
                   <CardBack details={details} vCardString={vCardString} />
                 )}
@@ -218,7 +242,31 @@ export default function App() {
             />
           </div>
 
-          <div className="pt-6">
+          <div className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 px-1">Front Design Style</label>
+              <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                <button 
+                  onClick={() => setFrontDesign("design1")}
+                  className={cn(
+                    "flex-1 py-2 rounded-lg text-[10px] uppercase tracking-widest transition-all",
+                    frontDesign === "design1" ? "bg-white text-black font-bold" : "text-white/40 hover:text-white"
+                  )}
+                >
+                  Design 1
+                </button>
+                <button 
+                  onClick={() => setFrontDesign("design2")}
+                  className={cn(
+                    "flex-1 py-2 rounded-lg text-[10px] uppercase tracking-widest transition-all",
+                    frontDesign === "design2" ? "bg-white text-black font-bold" : "text-white/40 hover:text-white"
+                  )}
+                >
+                  Design 2
+                </button>
+              </div>
+            </div>
+
             <div className="bg-white/5 rounded-2xl p-6 border border-white/10 flex items-start space-x-4">
               <div className="bg-white/10 p-3 rounded-xl">
                 <Share2 className="w-5 h-5 text-white/80" />
@@ -237,7 +285,11 @@ export default function App() {
       {/* Dedicated Print Section - Hidden by default, visible only during print */}
       <div id="print-section" className="hidden print:flex flex-col items-center gap-12 p-10 bg-white min-h-screen w-full">
         <div className="print-card-container">
-          <CardFront companyName={details.companyName} />
+          {frontDesign === "design1" ? (
+            <CardFront companyName={details.companyName} />
+          ) : (
+            <CardFrontModern />
+          )}
         </div>
         <div className="print-card-container">
           <CardBack details={details} vCardString={vCardString} />
@@ -343,6 +395,42 @@ function CardFront({ companyName }: { companyName: string }) {
           <h2 className="text-sm font-bold tracking-[0.4em] uppercase leading-relaxed max-w-[320px] text-white/90">
             {companyName}
           </h2>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CardFrontModern() {
+  return (
+    <div className="print-card w-full h-full bg-[#121212] rounded-[2rem] border border-white/10 flex items-center justify-center p-8 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05),5px_5px_15px_rgba(0,0,0,0.3)] relative overflow-hidden before:absolute before:inset-0 before:rounded-[2rem] before:border-r-4 before:border-b-4 before:border-white/5 before:pointer-events-none">
+      {/* Subtle background texture */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.1)_0%,_transparent_70%)]" />
+      </div>
+      
+      <div className="relative flex items-center space-x-1">
+        {/* Logo Image */}
+        <div className="relative w-32 h-24 flex items-center justify-end">
+          <img 
+            src={logo} 
+            alt="Logo" 
+            className="w-full h-full object-contain filter brightness-200"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+
+        {/* Vertical Line */}
+        <div className="w-[1px] h-14 bg-white/20" />
+
+        {/* Text Section */}
+        <div className="flex flex-col justify-center">
+          <h2 className="text-2xl font-black tracking-tighter uppercase leading-none text-white">
+            Star Code
+          </h2>
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mt-1">
+            Projects Limited
+          </p>
         </div>
       </div>
     </div>
