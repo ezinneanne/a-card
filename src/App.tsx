@@ -43,7 +43,7 @@ export default function App() {
   const [details, setDetails] = useState<CardDetails>({
     companyName: "STAR CODE PROJECTS LIMITED",
     fullName: "ENGR UCHENNA OBIAJUNWA",
-    phone: "07017160170",
+    phone: "08034239993, 08021000035",
     email: "starcode.com@gmail.com",
     address: "Agent Spot (Special Jumbo Plaza), 249 Abuloma Road, Off Jetty Ph Rivers State",
     address1: "213 Abak Road, Okwuson Tools Plaza, Uyo, Akwa Ibom State",
